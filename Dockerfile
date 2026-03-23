@@ -46,6 +46,7 @@ ENV PATH="/opt/venv/bin:$PATH" \
 
 # Define diretório de trabalho
 WORKDIR /app
+COPY --chown=appuser:appgroup requirements.txt .
 
 # Copia o código da aplicação
 COPY --chown=appuser:appgroup app.py .
