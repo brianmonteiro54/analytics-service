@@ -22,6 +22,7 @@ permissions:
 
 env:
   PYTHON_VERSION: "3.11"
+  TRIVY_VERSION: "v0.70.0"
   AWS_REGION: us-east-1
   ECR_REPOSITORY: togglemaster/${{ github.event.repository.name }}
   IMAGE_TAG: ${{ github.sha }}
@@ -137,8 +138,9 @@ jobs:
 
       - name: Scan de filesystem com Trivy (SARIF)
         if: always()
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.35.0
         with:
+          version: ${{ env.TRIVY_VERSION }}
           scan-type: fs
           scan-ref: .
           severity: HIGH,CRITICAL
@@ -148,8 +150,9 @@ jobs:
 
       - name: Scan de filesystem com Trivy (table legível)
         if: always()
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.35.0
         with:
+          version: ${{ env.TRIVY_VERSION }}
           scan-type: fs
           scan-ref: .
           severity: HIGH,CRITICAL
@@ -200,8 +203,9 @@ jobs:
 
       - name: Scan da imagem com Trivy (SARIF)
         if: always()
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.35.0
         with:
+          version: ${{ env.TRIVY_VERSION }}
           image-ref: ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
           format: sarif
           output: trivy-image-results.sarif
@@ -210,8 +214,9 @@ jobs:
 
       - name: Scan da imagem com Trivy (table legível)
         if: always()
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.35.0
         with:
+          version: ${{ env.TRIVY_VERSION }}
           image-ref: ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
           format: table
           output: trivy-image-results.txt
