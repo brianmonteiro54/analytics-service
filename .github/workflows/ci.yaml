@@ -139,7 +139,7 @@ jobs:
         if: always()
         uses: aquasecurity/trivy-action@v0.35.0
         with:
-          trivy-version: 'v0.70.0'
+          version: 'v0.70.0'
           scan-type: fs
           scan-ref: .
           severity: HIGH,CRITICAL
@@ -151,7 +151,7 @@ jobs:
         if: always()
         uses: aquasecurity/trivy-action@v0.35.0
         with:
-          trivy-version: 'v0.70.0'
+          version: 'v0.70.0'
           scan-type: fs
           scan-ref: .
           severity: HIGH,CRITICAL
@@ -204,7 +204,7 @@ jobs:
         if: always()
         uses: aquasecurity/trivy-action@v0.35.0
         with:
-          trivy-version: 'v0.70.0'
+          version: 'v0.70.0'
           image-ref: ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
           format: sarif
           output: trivy-image-results.sarif
@@ -215,7 +215,7 @@ jobs:
         if: always()
         uses: aquasecurity/trivy-action@v0.35.0
         with:
-          trivy-version: 'v0.70.0'
+          version: 'v0.70.0'
           image-ref: ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
           format: table
           output: trivy-image-results.txt
