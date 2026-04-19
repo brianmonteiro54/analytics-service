@@ -70,7 +70,9 @@ def test_process_message_dynamodb_error_does_not_delete_message():
     message = make_valid_message()
 
     fake_error = app.ClientError(
-        error_response={"Error": {"Code": "500", "Message": "DynamoDB failure"}},
+        error_response={
+            "Error": {"Code": "500", "Message": "DynamoDB failure"}
+        },
         operation_name="PutItem",
     )
 
