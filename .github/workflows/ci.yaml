@@ -137,7 +137,7 @@ jobs:
 
       - name: Scan de filesystem com Trivy (SARIF)
         if: always()
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.70.0
         with:
           scan-type: fs
           scan-ref: .
@@ -148,7 +148,7 @@ jobs:
 
       - name: Scan de filesystem com Trivy (table legível)
         if: always()
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.70.0
         with:
           scan-type: fs
           scan-ref: .
@@ -200,7 +200,7 @@ jobs:
 
       - name: Scan da imagem com Trivy (SARIF)
         if: always()
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.70.0
         with:
           image-ref: ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
           format: sarif
@@ -210,7 +210,7 @@ jobs:
 
       - name: Scan da imagem com Trivy (table legível)
         if: always()
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.70.0
         with:
           image-ref: ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
           format: table
