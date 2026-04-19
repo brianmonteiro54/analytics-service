@@ -6,6 +6,79 @@ Sua única função é:
 1.  Ouvir constantemente a fila do **AWS SQS** (que o `evaluation-service` preenche).
 2.  Consumir as mensagens de evento da fila.
 3.  Gravar os dados de análise em uma tabela do **AWS DynamoDB**.
+ 
+## Visão Geral
+ 
+O Analytics Service opera como um consumer assíncrono. Ele consome mensagens da fila SQS (enviadas pelo Evaluation Service a cada avaliação de flag) e persiste os dados na tabela DynamoDB `ToggleMasterAnalytics`. Isso permite rastrear o uso das feature flags, taxas de ativação e comportamento ao longo do tempo.
+ 
+## Tecnologias
+ 
+| Componente | Tecnologia |
+|---|---|
+| Linguagem | Python 3.11 |
+| Framework | Flask |
+| Mensageria | Amazon SQS (consumer) |
+| Banco de Dados | Amazon DynamoDB |
+| Container | Docker (multi-stage build) |
+| Orquestração | Kubernetes (EKS) |
+| Registry | Amazon ECR |
+| CI/CD | GitHub Actions + ArgoCD (GitOps) |
+ 
+## Endpoints
+ 
+| Método | Rota | Descrição |
+|---|---|---|
+| `GET` | `/health` | Health check do serviço |
+ 
+> O serviço opera primariamente como consumer de fila SQS em background thread, não expondo endpoints REST de dados.
+ 
+## Variáveis de Ambiente
+ 
+| Variável | Descrição |
+|---|---|
+| `AWS_REGION` | Região AWS |
+| `AWS_SQS_URL` | URL da fila SQS para consumir eventos |
+| `AWS_DYNAMODB_TABLE` | Nome da tabela DynamoDB (`ToggleMasterAnalytics`) |
+| `AWS_ENDPOINT_URL` | Endpoint customizado (para LocalStack em dev) |
+ 
+## Pipeline CI/CD (DevSecOps)
+ 
+O workflow do GitHub Actions executa os seguintes estágios:
+ 
+1. **Build & Unit Test** — Instalação de dependências e execução dos testes com `pytest`
+2. **Linter** — Análise estática com `flake8`
+3. **Security Scan** — SAST com `bandit` + SCA com `Trivy` (bloqueia vulnerabilidades críticas)
+4. **Docker Build & Push** — Build da imagem, scan com Trivy e push para o ECR
+5. **GitOps Update** — Atualiza a tag da imagem no repositório `deploy-analytics-service`
+ 
+## Deploy (GitOps)
+ 
+O deploy segue o modelo GitOps com ArgoCD. Ao final do pipeline de CI, a tag da imagem é atualizada automaticamente no repositório [`deploy-analytics-service`](https://github.com/brianmonteiro54/deploy-analytics-service), e o ArgoCD sincroniza a mudança no cluster EKS.
+ 
+## Executando Localmente
+ 
+```bash
+# Configurar variáveis
+cp .env.example .env
+ 
+# Instalar dependências
+pip install -r requirements.txt
+ 
+# Rodar
+python app.py
+```
+ 
+## Estrutura do Projeto
+ 
+```
+├── .github/workflows/ci.yaml       # Pipeline CI/CD
+├── tests/test_health.py             # Teste do health check
+├── tests/test_process_message.py    # Teste do processamento de mensagens
+├── Dockerfile                       # Build multi-stage (Python)
+├── app.py                           # Aplicação Flask + SQS consumer
+├── requirements.txt                 # Dependências Python
+└── README.md
+```
 
 ## 📦 Pré-requisitos (Local)
 
