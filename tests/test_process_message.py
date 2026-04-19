@@ -104,12 +104,16 @@ def test_sqs_worker_loop_processes_received_messages():
 
 def test_sqs_worker_loop_client_error_sleeps_before_retry():
     fake_error = app.ClientError(
-        error_response={"Error": {"Code": "500", "Message": "SQS receive failure"}},
+        error_response={
+            "Error": {"Code": "500", "Message": "SQS receive failure"}
+        },
         operation_name="ReceiveMessage",
     )
 
     with patch.object(app, "sqs_client") as mock_sqs, \
-         patch.object(app.time, "sleep", side_effect=KeyboardInterrupt) as mock_sleep:
+         patch.object(
+             app.time, "sleep", side_effect=KeyboardInterrupt
+         ) as mock_sleep:
 
         mock_sqs.receive_message.side_effect = fake_error
 
