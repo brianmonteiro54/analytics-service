@@ -159,7 +159,7 @@ jobs:
 
       - name: Upload resultado Trivy para GitHub Security
         if: always() && hashFiles('trivy-fs-results.sarif') != ''
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-fs-results.sarif
           category: trivy-filesystem
@@ -220,7 +220,7 @@ jobs:
 
       - name: Upload resultado Trivy para GitHub Security
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-image-results.sarif
           category: trivy-image
@@ -279,8 +279,7 @@ jobs:
       - name: Atualizar imagem no repo de deploy
         run: |
           FULL_IMAGE="${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
-          REPO_OWNER="${{ github.repository_owner }}"
-          git clone https://x-access-token:${{ secrets.DEPLOY_REPO_TOKEN }}@github.com/${REPO_OWNER}/deploy-${REPO_OWNER}.git deploy-repo
+          git clone https://x-access-token:${{ secrets.DEPLOY_REPO_TOKEN }}@github.com/${{ github.repository_owner }}/deploy-${{ github.event.repository.name }}.git deploy-repo
 
           cd deploy-repo
 
