@@ -9,6 +9,7 @@ import boto3
 from botocore.exceptions import NoCredentialsError, ClientError
 from flask import Flask, jsonify
 from dotenv import load_dotenv
+from prometheus_flask_exporter import PrometheusMetrics
 
 # Configura o logging
 logging.basicConfig(
