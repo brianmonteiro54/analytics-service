@@ -13,8 +13,7 @@ from prometheus_flask_exporter import PrometheusMetrics
 
 # Configura o logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 log = logging.getLogger(__name__)
 
@@ -40,13 +39,11 @@ try:
     session = boto3.Session(region_name=AWS_REGION)
 
     sqs_client = session.client(
-        "sqs",
-        endpoint_url=AWS_ENDPOINT_URL if AWS_ENDPOINT_URL else None
+        "sqs", endpoint_url=AWS_ENDPOINT_URL if AWS_ENDPOINT_URL else None
     )
 
     dynamodb_client = session.client(
-        "dynamodb",
-        endpoint_url=AWS_ENDPOINT_URL if AWS_ENDPOINT_URL else None
+        "dynamodb", endpoint_url=AWS_ENDPOINT_URL if AWS_ENDPOINT_URL else None
     )
 
     log.info(
@@ -63,29 +60,27 @@ except Exception as e:
 
 # --- SQS Worker ---
 
+
 def process_message(message):
-    """ Processa uma única mensagem SQS e a insere no DynamoDB """
+    """Processa uma única mensagem SQS e a insere no DynamoDB"""
     try:
         log.info(f"Processando mensagem ID: {message['MessageId']}")
-        body = json.loads(message['Body'])
+        body = json.loads(message["Body"])
 
         # Gera um ID único para o item no DynamoDB
         event_id = str(uuid.uuid4())
 
         # Constrói o item no formato do DynamoDB
         item = {
-            'event_id': {'S': event_id},
-            'user_id': {'S': body['user_id']},
-            'flag_name': {'S': body['flag_name']},
-            'result': {'BOOL': body['result']},
-            'timestamp': {'S': body['timestamp']}
+            "event_id": {"S": event_id},
+            "user_id": {"S": body["user_id"]},
+            "flag_name": {"S": body["flag_name"]},
+            "result": {"BOOL": body["result"]},
+            "timestamp": {"S": body["timestamp"]},
         }
 
         # Insere no DynamoDB
-        dynamodb_client.put_item(
-            TableName=DYNAMODB_TABLE_NAME,
-            Item=item
-        )
+        dynamodb_client.put_item(TableName=DYNAMODB_TABLE_NAME, Item=item)
 
         log.info(
             f"Evento {event_id} (Flag: {body['flag_name']}) salvo no DynamoDB."
@@ -93,8 +88,7 @@ def process_message(message):
 
         # Se tudo deu certo, deleta a mensagem da fila
         sqs_client.delete_message(
-            QueueUrl=SQS_QUEUE_URL,
-            ReceiptHandle=message['ReceiptHandle']
+            QueueUrl=SQS_QUEUE_URL, ReceiptHandle=message["ReceiptHandle"]
         )
 
     except json.JSONDecodeError:
@@ -114,7 +108,7 @@ def process_message(message):
 
 
 def sqs_worker_loop():
-    """ Loop principal do worker que ouve a fila SQS """
+    """Loop principal do worker que ouve a fila SQS"""
     log.info("Iniciando o worker SQS...")
     while True:
         try:
@@ -122,10 +116,10 @@ def sqs_worker_loop():
             response = sqs_client.receive_message(
                 QueueUrl=SQS_QUEUE_URL,
                 MaxNumberOfMessages=10,  # Processa em lotes de até 10
-                WaitTimeSeconds=20
+                WaitTimeSeconds=20,
             )
 
-            messages = response.get('Messages', [])
+            messages = response.get("Messages", [])
             if not messages:
                 # Nenhuma mensagem, continua o loop
                 continue
@@ -148,9 +142,10 @@ def sqs_worker_loop():
 app = Flask(__name__)
 
 metrics = PrometheusMetrics(app)
-metrics.info('app_info', 'Application info', version='1.0.0')
+metrics.info("app_info", "Application info", version="1.0.0")
 
-@app.route('/health')
+
+@app.route("/health")
 def health():
     # Uma verificação de saúde real poderia checar a conexão com o DynamoDB/SQS
     return jsonify({"status": "ok"})
@@ -158,8 +153,9 @@ def health():
 
 # --- Inicialização ---
 
+
 def start_worker():
-    """ Inicia o worker SQS em uma thread separada """
+    """Inicia o worker SQS em uma thread separada"""
     worker_thread = threading.Thread(target=sqs_worker_loop, daemon=True)
     worker_thread.start()
 
@@ -168,6 +164,6 @@ def start_worker():
 # Isso garante que ele inicie tanto com 'flask run' quanto com 'gunicorn'
 start_worker()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     port = int(os.getenv("PORT", 8005))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    app.run(host="0.0.0.0", port=port, debug=False)
