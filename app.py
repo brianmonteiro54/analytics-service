@@ -146,6 +146,8 @@ def sqs_worker_loop():
 
 app = Flask(__name__)
 
+metrics = PrometheusMetrics(app)
+metrics.info('app_info', 'Application info', version='1.0.0')
 
 @app.route('/health')
 def health():
