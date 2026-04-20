@@ -28,7 +28,8 @@ AWS_ENDPOINT_URL = os.getenv("AWS_ENDPOINT_URL")
 
 if not all([AWS_REGION, SQS_QUEUE_URL, DYNAMODB_TABLE_NAME]):
     log.critical(
-        "Erro: AWS_REGION, AWS_SQS_URL, e AWS_DYNAMODB_TABLE " "devem ser definidos."
+        "Erro: AWS_REGION, AWS_SQS_URL, e AWS_DYNAMODB_TABLE "
+        "devem ser definidos."
     )
     sys.exit(1)
 
@@ -81,7 +82,9 @@ def process_message(message):
         # Insere no DynamoDB
         dynamodb_client.put_item(TableName=DYNAMODB_TABLE_NAME, Item=item)
 
-        log.info(f"Evento {event_id} (Flag: {body['flag_name']}) salvo no DynamoDB.")
+        log.info(
+            f"Evento {event_id} (Flag: {body['flag_name']}) salvo no DynamoDB."
+        )
 
         # Se tudo deu certo, deleta a mensagem da fila
         sqs_client.delete_message(
@@ -89,7 +92,9 @@ def process_message(message):
         )
 
     except json.JSONDecodeError:
-        log.error(f"Erro ao decodificar JSON da mensagem ID: {message['MessageId']}")
+        log.error(
+            f"Erro ao decodificar JSON da mensagem ID: {message['MessageId']}"
+        )
         # Não deleta a mensagem, pode ser uma "poison pill"
     except ClientError as e:
         log.error(
